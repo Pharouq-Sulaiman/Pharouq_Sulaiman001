@@ -1,0 +1,42 @@
+library(tidyverse)
+list.files("data_science")
+power_plants <- read.csv("./data_science/power plants in the world.csv")
+power_plant1 <- power_plants%>%
+  drop_na(c(longitude, latitude))
+power_plant2 <- power_plant1%>%
+  st_as_sf(coords = c("longitude", "latitude"),     
+           crs    = 4326   ) 
+mapview(power_plant2)@map
+power_plant2 %>%   
+  leaflet() %>%  
+  addProviderTiles(providers$Esri.WorldImagery, group = "World Imagery") %>%  
+  addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite") %>%   
+  addLayersControl(baseGroups = c("Toner Lite", "World Imagery")) %>%  
+  addMarkers(label = power_plant2$Branches, clusterOptions = markerClusterOptions(),              
+       popup = ifelse(power_plant2$geometry != NA, power_plant2$ID,                            
+      "Address not accurately geo-coded"))
+summary(power_plant2)
+power_plant9 <- power_plant%>%
+   drop_na(c(longitude, latitude))
+power_plant8 <- power_plant9%>%
+  st_as_sf(coords = c("longitude", "latitude"),     
+              crs    = 4326   ) 
+mapview(power_plant8)@map
+summary(power_plant2$geometry)
+bbox <- st_bbox(power_plant2$geometry)
+print(bbox)
+#Assuming power_plant2 is a data frame with a column 'longitude'
+longitudes_greater_than_180 <- power_plant2$longitude[power_plant2$longitude , 180]
+
+# Print the longitudes greater than 180
+print(longitudes_greater_than_180)
+st_crs(power_plant2)
+st_is_valid(power_plant2)
+power_plant2 <- st_make_valid(power_plant2)
+summary(power_plant2$geometry)
+power_plant2 <- st_transform(power_plant2, crs = st_crs("EPSG:4326"))
+library(tidyverse)
+ggplot(power_plant, aes(fuel1,name,fill=fuel1))+
+  geom_bar(stat = "identity")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 0))
+
