@@ -1,0 +1,520 @@
+#reading the file in csv
+
+totpam <- read.csv("C:/Users/PC-039/Desktop/data_science/covid_19.csv")
+totpam
+
+covidDat$states
+#Replacing in the file the states with their respective regions
+
+rep_str = c('Abia'='South East',"Anambra"='South East',"Imo"='South East',"Ebonyi"='South East',"Enugu"='South East',"Osun"='South West',"Oyo"='South West',
+            "Ondo"='South West',"Ogun"='South West',"Ekiti"='South West',"Lagos"='South West',"Delta" ="South South","Edo"="South South",
+            "Akwa Ibom"="South South","Bayelsa"="South South","Cross River"="South South","Rivers"="South South","FCT"='North Central',"Nasarawa"='North Central',
+            "Kwara"='North Central',"Kogi"='North Central',"Niger"='North Central',"Plateau"='North Central',"Benue"='North Central',"Borno"="North East",
+            "Bauchi"="North East","Adamawa"="North East","Yobe"="North East","Taraba"="North East","Gombe"="North East","Zamfara"='North West',"Sokoto"='North West',
+            "Katsina"='North West',"Kebbi"='North West',"Kano"='North West',"Kaduna"='North West',"Jigawa"='North West'
+)
+
+covidDat$states <- str_replace_all(covidDat$states, rep_str)
+
+covidDat
+# Bringing out the data of each regions to get their respective mean and standard deviation
+table(grepl("South East", covidDat$states))
+covidDat2 <- covidDat[grepl("South East", covidDat$states),]
+covidDat2%>%
+  summarise(mean(total_death),sd(total_death))
+table(grepl("South East", covidDat$states))
+
+#FALSE  TRUE 
+#3548   552 
+#mean(total_death) sd(total_death)
+#1          17.73551        11.69589
+#> 
+
+table(grepl("South West", covidDat$states))
+covidDat3 <- covidDat[grepl("South West", covidDat$states),]
+covidDat3%>%
+  summarise(mean(total_death),sd(total_death))
+#FALSE  TRUE 
+#3418   682 
+#mean(total_death) sd(total_death)
+#1           77.9824        132.9716
+#> 
+
+table(grepl("South South", covidDat$states))
+covidDat4 <- covidDat[grepl("South South", covidDat$states),]
+covidDat4%>%
+  summarise(mean(total_death),sd(total_death))
+#FALSE  TRUE 
+#3445   655 
+#mean(total_death) sd(total_death)
+#1          48.46718        54.58256
+
+table(grepl("North East", covidDat$states))
+covidDat7 <- covidDat[grepl("North East", covidDat$states),]
+covidDat7%>%
+  summarise(mean(total_death),sd(total_death))
+#FALSE  TRUE 
+#3441   659 
+#mean(total_death) sd(total_death)
+#1          19.21244        13.68836
+
+table(grepl("North Central", covidDat$states))
+covidDat5 <- covidDat[grepl("North Central", covidDat$states),]
+covidDat5%>%
+  summarise(mean(total_death),sd(total_death))
+#FALSE  TRUE 
+#3326   774 
+#mean(total_death) sd(total_death)
+#1          29.32817        41.00141
+#> 
+table(grepl("North West", covidDat$states))
+covidDat6 <- covidDat[grepl("North West", covidDat$states),]
+covidDat6%>%
+  summarise(mean(total_death),sd(total_death))
+#FALSE  TRUE 
+#3322   778 
+#mean(total_death) sd(total_death)
+#1          25.84447         26.6265
+summary(covidDat2)
+
+#Doing the Z.test of South East against South South
+#South East mean= 17.73551
+
+#South South mean=48.46718
+#sample size of South East= 552
+#sample size of South South= 655
+#We might want to test the hypothesis that
+
+#Ho:South East mean =South South mean
+
+#Ha: South East mean != South South mean
+library(BSDA)
+
+
+
+
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat2$total_death,covidDat4$total_death, alternative="two.sided", mu=0, sigma.x=11.69589, sigma.y=54.58256,conf.level=.95)
+#Two-sample z-Test
+
+#data:  covidDat2$total_death and covidDat4$total_death
+#z = -14.032, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  -35.02408 -26.43926
+#sample estimates:
+# mean of x mean of y 
+#17.73551  48.46718 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same
+
+
+
+
+#Doing the Z.test of South East against South West
+
+#South East mean= 17.73551
+
+#South West mean= 77.9824
+#sample size of South East= 552
+#sample size of South West= 682
+#We might want to test the hypothesis that
+
+#Ho:South East mean =South West mean
+
+#Ha: South East mean != South West mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat2$total_death,covidDat3$total_death, alternative="two.sided", mu=0, sigma.x=11.69589, sigma.y=132.9716,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat2$total_death and covidDat3$total_death
+#z = -11.776, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+# 95 percent confidence interval:
+#  -70.27412 -50.21968
+#sample estimates:
+#  mean of x mean of y 
+#17.73551  77.98240 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same
+
+
+
+#Doing the Z.test of South East against North West
+
+#South East mean= 17.73551
+
+#North West mean= 25.8447
+#sample size of South East= 552
+#sample size of North West= 778
+#We might want to test the hypothesis that
+
+#Ho:South East mean =North West mean
+
+#Ha: South East mean != North West mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat2$total_death,covidDat6$total_death, alternative="two.sided", mu=0, sigma.x=11.69589, sigma.y=26.6265,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat2$total_death and covidDat6$total_death
+#z = -7.5319, p-value = 4.999e-14
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  -10.21908  -5.99885
+#sample estimates:
+#  mean of x mean of y 
+#17.73551  25.84447 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same
+
+
+#Doing the Z.test of South East against North East
+
+#South East mean= 17.73551
+
+#North East mean= 19.21244
+#sample size of South East= 552
+#sample size of North East= 659
+#We might want to test the hypothesis that
+
+#Ho:South East mean =North East mean
+
+#Ha: South East mean != North East mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat2$total_death,covidDat7$total_death, alternative="two.sided", mu=0, sigma.x=11.69589, sigma.y=13.68836,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat2$total_death and covidDat7$total_death
+#z = -2.0246, p-value = 0.0429
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  -2.90669094 -0.04718076
+#sample estimates:
+#  mean of x mean of y 
+#17.73551  19.21244 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same though they are very close reason the p-value is close to 0.05 (ie 0.0429)
+
+
+#Doing the Z.test of South East against North Central
+
+#South East mean= 17.73551
+
+#North central mean= 29.32817
+#sample size of South East= 552
+#sample size of North Central= 774
+#We might want to test the hypothesis that
+
+#Ho:South East mean =North Central mean
+
+#Ha: South East mean != North Central mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat2$total_death,covidDat5$total_death, alternative="two.sided", mu=0, sigma.x=11.69589, sigma.y=41.00141,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat2$total_death and covidDat5$total_death
+#z = -7.4524, p-value = 9.169e-14
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  -14.641520  -8.543796
+#sample estimates:
+#  mean of x mean of y 
+#17.73551  29.32817 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same
+
+
+#Doing the Z.test of South South against North Central
+
+#South South mean= 48.46718
+
+#North central mean= 29.32817
+#sample size of South South= 665
+#sample size of North Central= 774
+#We might want to test the hypothesis that
+
+#Ho:South South mean =North Central mean
+
+#Ha: South South mean != North Central mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat4$total_death,covidDat5$total_death, alternative="two.sided", mu=0, sigma.x=54.58256, sigma.y=41.00141,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat4$total_death and covidDat5$total_death
+#z = 7.3828, p-value = 1.55e-13
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  14.05803 24.21999
+#sample estimates:
+#  mean of x mean of y 
+#48.46718  29.32817 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same
+
+
+#Doing the Z.test of South South against North East
+
+#South South mean= 48.46718
+
+#North East mean= 19.21244
+#sample size of South South= 665
+#sample size of North East= 659
+#We might want to test the hypothesis that
+
+#Ho:South South mean =North East mean
+
+#Ha: South South mean != North East mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat4$total_death,covidDat7$total_death, alternative="two.sided", mu=0, sigma.x=54.58256, sigma.y=13.68836,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat4$total_death and covidDat7$total_death
+#z = 13.307, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 24.94602 33.56345
+#sample estimates:
+# mean of x mean of y 
+#48.46718  19.21244 
+
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+#Doing the Z.test of South South against North West
+
+#South South mean= 48.46718
+
+#North West mean= 25.8447
+#sample size of South South= 665
+#sample size of North West= 778
+#We might want to test the hypothesis that
+
+#Ho:South South mean =North West mean
+
+#Ha: South South mean != North West mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat4$total_death,covidDat6$total_death, alternative="two.sided", mu=0, sigma.x=54.58256, sigma.y=26.6265,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat4$total_death and covidDat6$total_death
+#z = 9.6818, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 18.04303 27.20238
+#sample estimates:
+# mean of x mean of y 
+#48.46718  25.84447 
+
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+
+#Doing the Z.test of South South against South West
+#South South mean= 48.46718
+
+#South West mean= 77.9824
+#sample size of South South= 665
+#sample size of South West= 682
+#We might want to test the hypothesis that
+
+#Ho:South South mean =South West mean
+
+#Ha: South South mean != South West mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat4$total_death,covidDat3$total_death, alternative="two.sided", mu=0, sigma.x=54.58256, sigma.y=132.9716,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat4$total_death and covidDat3$total_death
+#z = -5.3466, p-value = 8.961e-08
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# -40.33493 -18.69553
+#sample estimates:
+# mean of x mean of y 
+#48.46718  77.98240 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+
+#Doing the Z.test of South West against North Central
+#South West mean= 77.9824
+
+#North Central mean= 29.32817
+#sample size of South West= 682
+#sample size of North Central= 774
+#We might want to test the hypothesis that
+
+#Ho:South West mean =North Central mean
+
+#Ha: South West mean !=North Central mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat3$total_death,covidDat5$total_death, alternative="two.sided", mu=0, sigma.x=132.9716, sigma.y=41.00141,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat3$total_death and covidDat5$total_death
+#z = 9.1788, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 38.26498 59.04350
+#sample estimates:
+# mean of x mean of y 
+#77.98240  29.32817 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+#Doing the Z.test of South West against North East
+#South West mean= 77.9824
+
+#North East mean= 19.21244
+#sample size of South West= 682
+#sample size of North East= 659
+#We might want to test the hypothesis that
+
+#Ho:South West mean =North East mean
+
+#Ha: South West mean !=North East mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat3$total_death,covidDat7$total_death, alternative="two.sided", mu=0, sigma.x=132.9716, sigma.y=13.68836,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat3$total_death and covidDat7$total_death
+#z = 11.479, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 48.73575 68.80417
+#sample estimates:
+# mean of x mean of y 
+#77.98240  19.21244 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+
+#Doing the Z.test of South West against North West
+#South West mean= 77.9824
+
+#North West mean= 25.8447
+#sample size of South West= 682
+#sample size of North West= 778
+#We might want to test the hypothesis that
+
+#Ho:South West mean =North West mean
+
+#Ha: South West mean !=North West mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat3$total_death,covidDat6$total_death, alternative="two.sided", mu=0, sigma.x=132.9716, sigma.y=26.6265,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat3$total_death and covidDat6$total_death
+#z = 10.064, p-value < 2.2e-16
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  41.98442 62.29144
+#sample estimates:
+#  mean of x mean of y 
+#77.98240  25.84447 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+
+#Doing the Z.test of North West against North Central
+#North West mean= 25.8447
+
+#North Central mean= 29.32817
+#sample size of North West= 778
+#sample size of North Central= 774
+#We might want to test the hypothesis that
+
+#Ho:North West mean =North Central mean
+
+#Ha: North West mean !=North Central mean
+# Run a Z-test to identify whether two population means are equal or different
+z.test(covidDat6$total_death,covidDat5$total_death, alternative="two.sided", mu=0, sigma.x=26.6265, sigma.y=41.00141,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat6$total_death and covidDat5$total_death
+#z = -1.984, p-value = 0.04726
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  -6.92523350 -0.04215123
+#sample estimates:
+#  mean of x mean of y 
+#25.84447  29.32817 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same though they are very close, reason the p-value is close to 0.05 (ie 0.04726)
+
+
+#Doing the Z.test of North West against North East
+#North West mean= 25.8447
+
+#North East mean= 19.21244
+#sample size of North West= 778
+#sample size of North East= 659
+#We might want to test the hypothesis that
+
+#Ho:North West mean =North East mean
+
+#Ha: North West mean !=North East mean
+# Run a Z-test to identify whether two population means are equal or different
+
+z.test(covidDat6$total_death,covidDat7$total_death, alternative="two.sided", mu=0, sigma.x=26.6265, sigma.y=13.68836,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat6$total_death and covidDat7$total_death
+#z = 6.0653, p-value = 1.317e-09
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  4.488937 8.775123
+#sample estimates:
+#  mean of x mean of y 
+#25.84447  19.21244 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+
+
+#Doing the Z.test of North Central against North East
+#North Central mean= 29.32817
+
+#North East mean= 19.21244
+#sample size of North Central= 774
+#sample size of North East= 659
+#We might want to test the hypothesis that
+
+#Ho:North Central mean =North East mean
+
+#Ha: North Central mean !=North East mean
+# Run a Z-test to identify whether two population means are equal or different
+
+z.test(covidDat5$total_death,covidDat7$total_death, alternative="two.sided", mu=0, sigma.x=41.00141, sigma.y=13.68836,conf.level=.95)
+
+#Two-sample z-Test
+
+#data:  covidDat5$total_death and covidDat7$total_death
+#z = 6.4544, p-value = 1.087e-10
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 7.043945 13.187500
+#sample estimates:
+# mean of x mean of y 
+#29.32817  19.21244 
+#from the result above, P-value is less than 0.05 so we reject the null hypothesis,
+# that is the average death of the two regions are not the same.
+
+
+#from the tests above it was understood that the we rejected all the null hypothesis as the alternative hypothesis is true
+#looking at the various p-values, mean and standard deviation, we can infer that the pandemic spread of...
+#(south east and North east) also (North west and North central) are similar as the p-values are closer to 0.05 but not (=/>) than 0.05
+#THANK YOU ALL
