@@ -1,0 +1,233 @@
+#(In hierarchical clustering, the agglomeration or linkage method determines how the distance between two clusters is calculated based on the distances of their constituent observations or sub-clusters. Different linkage methods can lead to different cluster structures. Here's an explanation of the various linkage methods available:
+#Ward's Method (ward.D and ward.D2):       Ward's linkage aims to minimize the increase in the sum of squared distances after merging clusters. It tends to produce compact, balanced clusters.
+#"ward.D" uses the squared Euclidean distance.
+#"ward.D2" uses the actual Euclidean distance.
+#Single Linkage:        Single linkage (also known as nearest-neighbor linkage) calculates the distance between two clusters by considering the closest pair of observations (one from each cluster).
+#It can produce long, string-like clusters and is sensitive to noise and outliers.
+#Complete Linkage:      Complete linkage (also known as farthest-neighbor linkage) calculates the distance between two clusters by considering the farthest pair of observations (one from each cluster).
+#It can create compact, spherical clusters but may struggle with non-globular clusters.
+#Average Linkage:       Average linkage calculates the distance between two clusters as the average distance between all pairs of observations from the two clusters.
+#It can balance the effect of outliers and can work well for a variety of cluster shapes.
+#McQuitty Method:       McQuitty linkage is a modification of average linkage that considers the distances between cluster centers rather than individual observations.
+#It can be less sensitive to noise and outliers.
+#Median Linkage:        Median linkage calculates the distance between two clusters based on the median distance between observations in the clusters.
+#It can be robust against outliers and noise.
+#Centroid Linkage:      Centroid linkage calculates the distance between two clusters by using the centroids (mean vectors) of the clusters.
+#It can produce balanced, spherical clusters but can be affected by outliers.
+#Each linkage method has its own characteristics and is suitable for different types of data and cluster structures. The choice of linkage method should be based on your understanding of the data and the goals of the clustering analysis. It iws often a good practice to try multiple linkage methods and compare the resulting clusters to determine which method works best for your specific dataset and objectives.)
+
+
+
+
+
+ss <- sample(1:50,15)
+df <- USArrests[ss,]
+df_scaled <- scale(USArrests)
+df_scaled
+df_dist1 <- get_dist(df_scaled, method = "spearman")
+df_dist1 <- round(as.matrix(df_dist1),1)
+df_dist1 <- as.dist(df_dist1)
+library(cluster)
+library(factoextra)
+library(tidyverse)
+df_dist2 <- get_dist(df_scaled, method = "spearman")
+df_dist2 <- round(as.matrix(df_dist2)[1:14,1:14],2)
+data("flower")
+flower <- scale(flower)
+dd_scaled <- daisy(flower)
+dd <- as.dist(dd)
+df_dist2 <- as.dist(df_dist2)
+dd <- round(as.matrix(dd)[1:17,1:17],2)
+fviz_dist(df_dist2)
+fviz_dist(df_dist1)
+fviz_dist(dd)
+fviz_nbclust(df_scaled, kmeans, method = "wss")
+fviz_nbclust(flower, kmeans, method = "wss")
+library(fpc)
+
+
+
+
+initial_centers <- matrix(c(-0.5052109,  1.1603196,  0.01793648, -1.3806822,
+                            2.6443501,  0.5197310, -0.13153421,  0.1353777,
+                             -1.2525644, -0.5479169,  0.86137826, -0.9002406,
+                             -0.2596519, -1.4874469, -0.67603460,  0.6051428), ncol = 4, byrow = TRUE)
+
+set.seed(3)
+km.res <- kmeans(df_scaled, 2, nstart = 25)
+
+aggregate(USArrests, by= list(cluster = km.res$cluster), mean)
+dc <- cbind(USArrests, cluster= km.res$cluster)
+km.res$tot.withinss
+km.res$centers
+km.res$iter
+km.res$ifault
+fviz_cluster(km.res, data = df_scaled,
+             palette = c("blue", "lightblue","red", "gold"),
+             ellipse.type = "euclid", # Concentration ellipse
+             star.plot = TRUE, # Add segments from centroids to items
+             repel = TRUE, # Avoid label overplotting (slow)
+             ggtheme = theme_minimal()
+) + theme(panel.background = element_rect(fill = "lightblue"))+theme_classic()
+fviz_nbclust(df_scaled, pam, method = "silhouette")+
+  theme_classic()
+pam.res <- pam(df_scaled, 2)
+array(df_scaled, dim = c(4,4,20))
+fviz_cluster(pam.res,
+             palette = c("#00AFBB", "#FC4E07"), # color palette
+             ellipse.type = "t", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             ggtheme = theme_classic()
+)
+#clara clustering on r;
+
+uf1 <- cbind(rnorm(200,0,8), rnorm(200,0,8))
+uf <- cbind(rnorm(300,50,8), rnorm(300,50,8))
+uf <- rbind(uf1, uf)
+uf <- uf[sample(nrow(uf)), ]
+colnames(uf) <- c("x","y")
+rownames(uf) <- paste0("s", 1:nrow(uf),"A")
+clara.res <- clara(uf,2, samples = 50, pamLike = TRUE)
+uf1 <- cbind(uf,cluster= clara.res$clustering)
+fviz_cluster(clara.res,
+             palette = c("#00AFBB", "#FC4E07"), # color palette
+             ellipse.type = "t", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             geom = "point",
+             pointsize = 3,
+             ggtheme = theme_classic()
+)
+#clara owrk
+
+clara.res <- clara(uf,2, samples = 50, pamLike = FALSE, metric = "manhattan", stand = TRUE)
+uf1 <- cbind(uf,cluster= clara.res$clustering)
+fviz_cluster(clara.res,
+             palette = c("#00AFBB", "#FC4E07"), # color palette
+             ellipse.type = "t", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             geom = "point",
+             pointsize = 3,
+             ggtheme = theme_classic()
+)
+#hierarchichal clustering
+res.hc <- hclust(d= df_dist1, method = "average" )
+res.hc1 <- hclust(d= df_dist1, method = "ward.D2")
+fviz_dend(res.hc,cex=0.5)
+res.coph <- cophenetic(res.hc)
+
+as.matrix(res.coph)
+cor(df_dist1,res.coph)
+grp <- cutree(res.hc,k=4)
+table(grp)
+rownames(USArrests)[grp==1]
+
+fviz_dend(res.hc, k = 4, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+
+fviz_cluster(list(data = USArrests, cluster = grp),
+             palette = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+library("cluster")
+# Agglomerative Nesting (Hierarchical Clustering)
+res.agnes <- agnes(x = df_dist1, # data matrix
+                   stand = TRUE, # Standardize the data
+                   metric = "spearman", # metric for distance matrix
+                   method = "average" # Linkage method
+)
+# DIvisive ANAlysis Clustering
+res.diana <- diana(x = USArrests, # data matrix
+                   stand = TRUE, # standardize the data
+                   metric = "euclidean" # metric for distance matrix
+)
+
+fviz_dend(res.agnes,cex=0.5)
+res.coph1 <- cophenetic(res.agnes)
+
+as.matrix(res.coph1)
+cor(df_dist1,res.coph1)
+grp <- cutree(res.agnes,k=4)
+table(grp)
+rownames(USArrests)[grp==1]
+
+fviz_dend(res.agnes, k = 4, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+
+fviz_cluster(list(data = USArrests, cluster = grp),
+             palette = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#comparing dendrogram
+library(dendextend)
+dend1 <- as.dendrogram(res.hc)
+dend2 <- as.dendrogram(res.hc1)
+dend_list <- dendlist(dend1,dend2)
+tanglegram(dend1, dend2)
+tanglegram(dend1, dend2,
+           highlight_distinct_edges = TRUE, # Turn-off dashed lines
+           common_subtrees_color_lines = TRUE, # Turn-off line colors
+           common_subtrees_color_branches = TRUE, # Color common branches
+           main = paste("entanglement =", round(entanglement(dend_list), 2))
+)
+
+#correlatn matrix
+cor.dendlist(dend_list, method = "cophenetic")
+cor.dendlist(dend_list, method = "baker")
+cor_cophenetic(dend1,dend2)
+cor_bakers_gamma(dend1,dend2)
+dend3 <- df_dist1%>%dist%>%hclust("complete")%>%as.dendrogram
+dend4 <- df_dist1%>%dist%>%hclust("single")%>%as.dendrogram
+dend5 <- df_dist1%>%dist%>%hclust("centroid")%>%as.dendrogram
+dend_lists <- dendlist("complete"=dend3, "single"= dend4, "centroid"= dend5, "ward.D2"= dend2, "average"= dend1)
+cors <- cor.dendlist(dend_lists)
+round(cors,2)
+library(corrplot)
+corrplot(cors, "pie", "lower")
+#different visualization types
+fviz_dend(res.hc, k = 4, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE, # Add rectangle around groups
+          rect_border = "jco",
+          rect_fill = TRUE)
+fviz_dend(res.hc, cex = 0.5,
+          main = "Dendrogram - average",
+          xlab = "Objects", ylab = "Distance", sub = "")
+fviz_dend(res.hc, cex = 0.5, horiz = TRUE)
+
+fviz_dend(res.hc, k = 4, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          color_labels_by_k = TRUE, # color labels by groups
+          ggtheme = theme_gray() # Change theme
+)
+fviz_dend(res.hc, cex = 0.5, k = 4, # Cut in four groups
+          k_colors = "jco")
+fviz_dend(res.hc, k = 4, cex = 0.4, horiz = TRUE, k_colors = "jco",
+          rect = TRUE, rect_border = "jco", rect_fill = TRUE)
+fviz_dend(res.hc, cex = 1.0, k = 4,
+          k_colors = "jco", type = "circular")
+require("igraph")
+fviz_dend(res.hc, k = 4, k_colors = "jco",
+          type = "phylogenic", repel = TRUE)
+plot(dend3)
+require("igraph")
+fviz_dend(res.hc, k = 4, # Cut in four groups
+          k_colors = "jco",
+          type = "phylogenic", repel = TRUE,
+          phylo_layout = "layout.gem")
+#case of dendrogram with large dataset 
+fviz_dend(res.hc, xlim = c(1, 100), ylim = c(1, 40))
