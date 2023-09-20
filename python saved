@@ -1,0 +1,399 @@
+Arithmetic Operators
+Arithmetic operators
+
++ Addition
+- Subtraction
+* Multiplication
+/ Division
+% Mod (the remainder after dividing)
+** Exponentiation (note that ^ does not do this operation, as you might have seen in other languages)
+// Divides and rounds down to the nearest integer
+The usual order of mathematical operations holds in Python, which you can review in this Math Forum page if needed.
+
+Bitwise operators are special operators in Python that you can learn more about here if you'd like.
+
+Examples
+
+print(3 + 5) # 8
+print(1 + 2 + 3 * 3) # 12
+print(3 ** 2) # 9
+print(9 % 2) # 1
+Solution: Average Electricity Bill
+# Write an expression that calculates the average of 23, 32 and 64.
+# Place the expression in this print statement.
+print((23 + 32 + 64)/3)
+Solution: Calculate
+# Fill this in with an expression that calculates how many tiles are needed.
+print(9*7 + 5*7)
+# Fill this in with an expression that calculates how many tiles will be left over.
+print(17*6 - (9*7 + 5*7))
+Variables and Assignment Operators
+Variables and Assignment Operators
+From this page, you will get your first look at variables in Python. There are three videos in this concept to show you some different cases you might run into!
+
+
+Variables I
+Variables are used all the time in Python! Below is the example you saw in the video where we performed the following:
+
+mv_population = 74728
+
+Here mv_population is a variable, which holds the value of 74728. This assigns the item on the right to the name on the left, which is actually a little different than mathematical equality, as 74728 does not hold the value of mv_population.
+
+In any case, whatever term is on the left side, is now a name for whatever value is on the right side. Once a value has been assigned to a variable name, you can access the value from the variable name.
+
+
+Variables II
+In this video you saw that the following two are equivalent in terms of assignment:
+
+x = 3
+y = 4
+z = 5
+and
+
+x, y, z = 3, 4, 5
+However, the above isn't a great way to assign variables in most cases, because our variable names should be descriptive of the values they hold.
+
+Besides writing variable names that are descriptive, there are a few things to watch out for when naming variables in Python.
+
+1. Only use ordinary letters, numbers and underscores in your variable names. They can’t have spaces, and need to start with a letter or underscore.
+
+2. You can’t use Python's reserved words, or "keywords," as variable names. There are reserved words in every programming language that have important purposes, and you’ll learn about some of these throughout this course. Creating names that are descriptive of the values often will help you avoid using any of these keywords. Here you can see a table of Python's reserved words.
+
+3. The pythonic way to name variables is to use all lowercase letters and underscores to separate words.
+
+YES my_height = 58 my_lat = 40 my_long = 105 NO my height = 58 MYLONG = 40 MyLat = 105
+
+Though the last two of these would work in python, they are not pythonic ways to name variables. The way we name variables is called snake case, because we tend to connect the words with underscores.
+
+
+Example
+
+mv_population = 74728
+mv_population = 74728 + 4000 - 600
+print(mv_population) # 78128
+
+Assignment Operators
+Below are the assignment operators from the video. You can also use *= in a similar way, but this is less common than the operations shown below. You can find some practice with much of what we have already covered here.
+Solution: Variables and Assignment Operators
+Solution: Assign and Modify Variables
+This is our solution to the previous quiz:
+
+## The current volume of a water reservoir (in cubic metres)
+reservoir_volume = 4.445e8
+## The amount of rainfall from a storm (in cubic metres)
+rainfall = 5e6
+
+## decrease the rainfall variable by 10% to account for runoff
+rainfall *= .9
+
+## add the rainfall variable to the reservoir_volume variable
+reservoir_volume += rainfall
+
+## increase reservoir_volume by 5% to account for stormwater that flows
+## into the reservoir in the days following the storm
+reservoir_volume *= 1.05
+
+## decrease reservoir_volume by 5% to account for evaporation
+reservoir_volume *= 0.95
+
+## subtract 2.5e5 cubic metres from reservoir_volume to account for water
+## that's piped to arid regions.
+reservoir_volume -= 2.5e5 
+
+## print the new value of the reservoir_volume variable
+print(reservoir_volume)
+Solution: Changing Variables
+For the first multiple choice quiz, the correct answer is that the value of crs_per_rab has not changed. That is, it is still 3.0.
+
+This is because when a variable is assigned, it is assigned to the value of the expression on the right-hand-side, not to the expression itself. In the line:
+
+>>> crs_per_rab = carrots/rabbits	
+Python actually did the calculation to evaluate the expression on the right-hand-side, carrots/rabbits, and then assigned the variable crs_per_rab to be the value of that expression. It promptly forgot the formula, only saving the result in the variable.
+
+In order to update the value of crs_per_rab to take into account the change in rabbits, we need to run this line again:
+
+>>> crs_per_rab = carrots/rabbits
+>>> print(crs_per_rab)	
+2.0
+That’s the new number of carrots per rabbit after the increase in the number of rabbits. All of our variables have been updated to take this into account.
+Integers and Floats
+Integers and Floats
+There are two videos on this page to discuss integers and floats, as well as some additional helpful notes!
+
+
+Integers and Floats
+There are two Python data types that could be used for numeric values:
+
+int - for integer values
+float - for decimal or floating point values
+You can create a value that follows the data type by using the following syntax:
+
+x = int(4.7)   # x is now an integer 4
+y = float(4)   # y is now a float of 4.0
+You can check the type by using the type function:
+
+>>> print(type(x))
+int
+>>> print(type(y))
+float
+Because the float, or approximation, for 0.1 is actually slightly more than 0.1, when we add several of them together we can see the difference between the mathematically correct answer and the one that Python creates.
+
+>>> print(.1 + .1 + .1 == .3)
+False
+You can see more on this here.
+
+
+Python Best Practices
+For all the best practices, see the PEP8 Guidelines.
+
+You can use the atom package linter-python-pep8 to use pep8 within your own programming environment in the Atom text editor, but more on this later. If you aren't familiar with text editors yet, and you are performing all of your programming in the classroom, no need to worry about this right now.
+
+Follow these guidelines to make other programmers and future you happy!
+
+Good
+print(4 + 5)
+Bad
+print(                       4 + 5)
+You should limit each line of code to 80 characters, though 99 is okay for certain use cases. You can thank IBM for this ruling.
+
+Why are these conventions important? Although how you format the code doesn’t affect how it runs, following standard style guidelines makes code easier to read and consistent among different developers on a team.
+Booleans, Comparison Operators, and Logical Operators
+
+Examples
+
+x = 42 > 43 # False
+
+age = 14
+is_teen = age > 12 and age < 20
+print(is_teen) # True
+
+Booleans, Comparison Operators, and Logical Operators
+The bool data type holds one of the values True or False, which are often encoded as 1 or 0, respectively.
+
+There are 6 comparison operators that are common to see in order to obtain a bool value:
+
+Comparison Operators
+Symbol Use Case	Bool	Operation
+5 < 3	False	Less Than
+5 > 3	True	Greater Than
+3 <= 3	True	Less Than or Equal To
+3 >= 5	False	Greater Than or Equal To
+3 == 5	False	Equal To
+3 != 5	True	Not Equal To
+And there are three logical operators you need to be familiar with:
+
+Logical Use	Bool	Operation
+5 < 3 and 5 == 5	False	and - Evaluates if all provided statements are True
+5 < 3 or 5 == 5	True	or - Evaluates if at least one of many statements is True
+not 5 < 3	True	not - Flips the Bool Value
+Here is more information on how George Boole changed the world!
+Solution: Booleans, Comparison and Logical Operators
+Here is our solution for the first quiz question on the previous page:
+
+Solution: Which is denser, Rio or San Francisco?
+print(san_francisco_pop_density > rio_de_janeiro_pop_density)
+Note other solutions are possible, like the one below, but take a moment to make sure you understand and appreciate the concise efficiency of the one line above!
+
+if (san_francisco_pop_density > rio_de_janeiro_pop_density):
+    print (True)
+else:
+    print (False)
+Strings
+
+In the video above, at the 1:32 mark, the str is written as follows salesman = '"I think you\'re an encyclopedia salesman'", but the closing string literals should be double quotes " followed by single quotes '.
+
+Strings
+Strings in Python are shown as the variable type str. You can define a string with either double quotes " or single quotes '. If the string you are creating actually has one of these two values in it, then you need to be careful to assure your code doesn't give an error.
+
+>>> my_string = 'this is a string!'
+>>> my_string2 = "this is also a string!!!"
+You can also include a \ in your string to be able to include one of these quotes:
+
+>>> this_string = 'Simon\'s skateboard is in the garage.'
+>>> print(this_string)
+Simon's skateboard is in the garage.
+If we don't use this, notice we get the following error:
+
+>>> this_string = 'Simon's skateboard is in the garage.'
+  File "<ipython-input-20-e80562c2a290>", line 1
+    this_string = 'Simon's skateboard is in the garage.'
+                         ^
+SyntaxError: invalid syntax
+The color highlighting is also an indication of the error you have in your string in this second case. There are a number of other operations you can use with strings as well. In this video you saw a few:
+
+>>> first_word = 'Hello'
+>>> second_word = 'There'
+>>> print(first_word + second_word)
+
+HelloThere
+
+>>> print(first_word + ' ' + second_word)
+
+Hello There
+
+>>> print(first_word * 5)
+
+HelloHelloHelloHelloHello
+
+>>> print(len(first_word))
+
+5
+Unlike the other data types you have seen so far, you can also index into strings, but you will see more on this soon! For now, here is a small example. Notice Python uses 0 indexing - we will discuss this later in this lesson in detail.
+
+>>> first_word[0]
+
+H
+
+>>> first_word[1]
+
+e
+The len() function
+len() is a built-in Python function that returns the length of an object, like a string. The length of a string is the number of characters in the string. This will always be an integer.
+
+There is an example above, but here's another one:
+
+print(len("ababa") / len("ab"))
+2.5
+You know what the data types are for len("ababa") and len("ab"). Notice the data type of their resulting quotient here.
+Solution: Strings
+Here are our solutions to some quizzes on the previous page:
+
+Solution: Fix the Quote
+Here are two different methods to fix the quote:
+
+# TODO: Fix this string!
+ford_quote = 'Whether you think you can, or you think you can\'t--you\'re right.'
+
+# TODO: Fix this string!
+ford_quote = "Whether you think you can, or you think you can't--you're right."
+Solution: Write a Server Log Message
+Here are a couple of options for this one:
+
+print (username + " accessed the site " + url + " at " + timestamp + ".")
+OR
+
+message = username + " accessed the site " + url + " at " + timestamp + "."
+print(message)
+Solution: len()
+name_length = len(given_name) + len(middle_names) + len(family_name) + 2
+Type and Type Conversion
+
+Example
+
+house_number = 13
+street_name = "The Crescent"
+town_home = "Belmont"
+print(type(house_name)) # <class 'int'="">
+
+address = str(house_number + " " + street_name + ", " + town_name
+print(address) # 13 The Crescent, Belmont
+
+Type and Type Conversion
+You have seen four data types so far:
+
+int
+float
+bool
+string
+You got a quick look at type() from an earlier video, and it can be used to check the data type of any variable you are working with.
+
+>>> print(type(633))
+int
+>>> print(type(633.0))
+float
+>>> print(type('633'))
+str
+>>> print(type(True))
+bool
+You saw that you can change variable types to perform different operations. For example,
+
+"0" + "5"
+provides completely different output than
+
+0 + 5
+What do you think the below would provide?
+
+"0" + 5
+How about the code here:
+
+0 + "5"
+Checking your variable types is really important to assure that you are retrieving the results you want when programming.
+
+Solution: Type and Type Conversion
+Here is one possible solution for the Total Sales quiz on the previous page:
+
+Solution: Total Sales
+weekly_sales = int(mon_sales) + int(tues_sales) + int(wed_sales) + int(thurs_sales) + int(fri_sales)
+weekly_sales = str(weekly_sales)  #convert the type back!!
+print("This week's total sales: " + weekly_sales)
+
+
+
+
+
+String Methods
+In this video you were introduced to methods. Methods are like some of the functions you have already seen:
+
+len("this")
+type(12)
+print("Hello world")
+These three above are functions - notice they use parentheses, and accept one or more arguments. Functions will be studied in much more detail in a later lesson!
+
+A method in Python behaves similarly to a function. Methods actually are functions that are called using dot notation. For example, lower() is a string method that can be used like this, on a string called "sample string": sample_string.lower().
+
+Methods are specific to the data type for a particular variable. So there are some built-in methods that are available for all strings, different methods that are available for all integers, etc.
+
+Below is an image that shows some methods that are possible with any string.
+
+
+Each of these methods accepts the string itself as the first argument of the method. However, they also could receive additional arguments, that are passed inside the parentheses. Let's look at the output for a few examples.
+
+>>> my_string.islower()
+True
+>>> my_string.count('a')
+2
+>>> my_string.find('a')
+3
+You can see that the count and find methods both take another argument. However, the .islower() method does not accept another argument.
+
+No professional has all the methods memorized, which is why understanding how to use documentation and find answers is so important. Gaining a strong grasp of the foundations of programming will allow you to use those foundations to use documentation to build so much more than someone who tries to memorize all the built-in methods in Python.
+
+One important string method: format()
+We will be using the format() string method a good bit in our future work in Python, and you will find it very valuable in your coding, especially with your print statements.
+
+We can best illustrate how to use format() by looking at some examples:
+
+Example 1 python print("Mohammed has {} balloons".format(27)) Example 1 Output txt Mohammed has 27 balloons Example 2 python animal = "dog" action = "bite" print("Does your {} {}?".format(animal, action)) Example 2 Output txt Does your dog bite? Example 3 python maria_string = "Maria loves {} and {}" print(maria_string.format("math", "statistics")) Example 3 Output txt Maria loves math and statistics
+
+Notice how in each example, the number of pairs of curly braces {} you use inside the string is the same as the number of replacements you want to make using the values inside format().
+
+More advanced students can learn more about the formal syntax for using the format() string method here.
+String Methods
+
+Quiz Question
+
+What happens when you call a string method like islower() on a float object? For example, 13.37.islower().
+
+There is a playground workspace further down this page that you can use to experiment.
+
+
+
+
+
+
+
+
+
+You can learn more about strings and string methods by looking at the string method documentation.
+
+You will find that the documentation is one of the most valuable resources for writing code, and not only when it comes to strings or writing code in Python! By reading and searching the documentation you can learn about data types and built-in functions as well as how to use them.
+
+Give it a try now! Look up a few string methods (using the link above) and try them out in the programming playground below (using the Test Run button).
+
+String Method Playground
+  
+format() Practice
+Use the coding space below to practice using the format() string method. There are no right or wrong answers here, just practice!
+
+
+  
