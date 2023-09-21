@@ -634,6 +634,27 @@ However, you will see some data types in the next sections that will be unordere
 
 Additionally, you will see how these each have different methods, so why you would use one data structure vs. another is largely dependent on these properties, and what you can easily do with it!
 
+Solution: List and Membership Operators
+Quiz: List Indexing
+Here is a good code line to use for this task:
+
+num_days = days_in_month[month - 1]```
+
+
+### Quiz: Slicing Lists
+Here is a good code line to use for this task:
+print(eclipse_dates[-3:])```
+
+Quiz Question 3
+Here are our explanations for the answers shown below:
+
+sentence1 is a string, and is therefore an immutable object. That means that while you can refer to individual characters in sentence1 (e.g., you can write things like sentence1[5]) you cannot assign value to them (you cannot write things like sentence1[5] = 'a'). Therefore the third expression (sentence1[30]="!") will result in an error.
+
+sentence2 is a list, and lists are mutable, meaning that you can change the value of individual items in sentence2:
+
+In the first expression (sentence2[6]="!") we changed the value of the last item in sentence2 from "." to "!".
+In the second expression (sentence2[0]= "Our Majesty") we changed the value of the first item in sentence2 from "I" to "Our Majesty".
+In the last expression (sentence2[0:2] = ["We", "want"]) we used slicing to simultaneously change the value of both the first and the second item in sentence2 from "I" and "wish" to "We" and "want".
 
 
   
