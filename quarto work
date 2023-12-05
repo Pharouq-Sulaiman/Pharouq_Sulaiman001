@@ -1,0 +1,201 @@
+---
+title: 7CS034 Assessment
+        Data Science
+author: "your Name"
+format: html
+editor: visual
+---
+
+# (Title or General Heading of the Assessment )
+
+We have a data consisting a modified snapshot of data collected during **Household Census** conducted in **England** by year **2021.** The data includes some variables **(ie, ID, Person_ID, Ethnicity, Marital Status, Gender, Response to H8, Highest Education, Income and Age)** . From this ***data*** we can draw so many valuable insights, depending on the purpose and situation requirement. In this case the [*Exploratory Data Analysis*]{.underline} and [*Visualizations*]{.underline} will be utilized to tell various stories about the different **Race (Ethnicity)** living in **England**, enumerating their distribution based on different variables in the data and explaining the various insight got from the data, while providing recommendations, discussions and conclusion where needed. Before embarking on the journey of driving the data to a colorful output with impressive analytic skills, it will be expedient to **Clean** the data and prepare it for the analysis, removing "***NAs**",* performing ***counts, sum, total*** and ***percentages*** as will be seen subsequently in the course of the work.
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+ suppressWarnings({
+  library(UsingR)
+  library(MASS)
+  library(stringr)
+  library(tidyverse)
+  library(ggfortify)
+  library(dplyr)
+  library(SmartEDA)
+  library(explore)
+  library(plotly)
+   library(knitr)
+   library(xfun)
+   library(rmarkdown)
+   library(quarto)
+})
+```
+
+```{r}
+#| echo: false
+#| #| label: tbl-Census
+#| tbl-cap: "Table Representing the  Few Rows from Household Census "
+#| tbl-cap-location: top
+HouseHold_Census <- read.csv("C:/Users/PC-040/Downloads/data-1.csv")
+HouseHold_Census <- HouseHold_Census%>% mutate(Mar_Stat ,str_replace_na(Mar_Stat, "NULL"))
+HouseHold_Census$Mar_Stat <- HouseHold_Census$`str_replace_na(Mar_Stat, "NULL")`
+HouseHold_Census <- HouseHold_Census%>% mutate(INC ,str_replace_na(INC, "NULL"))
+HouseHold_Census$INC <- HouseHold_Census$`str_replace_na(INC, "NULL")`
+HouseHold_Census <- HouseHold_Census%>% mutate(Highest.Ed ,str_replace_na(Highest.Ed, "NULL"))
+HouseHold_Census$Highest.Ed <- HouseHold_Census$`str_replace_na(Highest.Ed, "NULL")`
+HouseHold_Census <- HouseHold_Census%>%  select(-c(`str_replace_na(Mar_Stat, "NULL")`,`str_replace_na(INC, "NULL")`,`str_replace_na(Highest.Ed, "NULL")`))
+kable(head(HouseHold_Census))
+```
+
+## **EXPLORATORY DATA ANALYSIS AND DETAILS VISUALIZATION**
+
+As mentioned earlier, the analysis will be based on data *exploration* and *visualization* to view the necessary details intricate to the data set. These details will be visualized for the variables solely **(Uni-variate Analysis)** peculiar to the exploration of Ethnicity with necessary explanations, then we will divulge deeply into [exploring the interactions between the Ethnicity variable and other variables]{.underline} [**(**]{.underline}**Multi-variate Analysis)** in the data set to help tell a story by linking the insights together as a presentation.
+
+**UNIVARIATE ANALYSIS:**
+
+England is a territory with a long history of peaceful coexistence of people with different background and/or ethnicity to foster growth individually or as a society. Based on this history we will like to show some interesting information about various ethnicity/ race, their contribution to England and how they live highlighting some *intrinsic attributes* of the ethnicity as the data will permit. Proceeding with the analysis let us look into the distribution of the ethnicity in our data enumerating the percentage and population of the different ethnicity as in the Household data. According to @fig-piechart there are 27410 persons in the data with the population of the ethnicity shown in it. It will be observed that **"White" Ethnicity** is the most populated covering up to 69.1% of the population, the order of population according to @fig-piechart is **White;69.1% \> Asian;12.9% \> Black;11.5% \> Hispanic;3.41% \> other;3.11%** as their relative population is shown in the chart. The percentage distribution of marital Status was also visualized
+
+```{r}
+#| echo: false
+#| label: fig-piechart
+#| fig-cap: "Pie Chart of Household Ethnicity"
+#| warning: false
+ HouseHold_Census %>% count(Eth)%>%
+   plot_ly(labels = ~Eth, values = ~n, type = "pie", textinfo = "label+percent",       hole = 0.3)%>%
+   layout( title = "Pie Chart of Household Ethnicity", annotations = list(text = "Data Source: House Hold Cencus UK", showarrow =         TRUE), legend = list(orientation = "h", x = 0.5, y = -0.1), margin = list(l = 0, r = 0, b = 0, t = 40), colors = c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"), hoverinfo = "label+percent+name",hoverlabel = list(bgcolor = "white", font = list(color = "black")))
+```
+
+As visualized by @fig-MaxPerson , it can be inferred that most Households are occupied by **1 person to 5 people**. It can also be seen that the highest number of people per Household is **2 persons** with **32.3%** of the total Household in the data, the next is **1 person** per Household with **26.3%**. the distribution is explained in the chart below . in @fig-H8 most people response to H8 *(Are all the rooms in this accommodation, including the kitchen, bathroom and toilet, behind a door that only this household can use?)* is **'yes'** covering up to **87.1%**. These insights will be well expatiated during the **multi-variate** analysis giving them more meaning.
+
+```{r}
+#| echo: false
+#| label: fig-MaxPerson
+#| fig-cap: "Bar Chart Of maximum persons per House Hold in UK"
+#| warning: false
+ p <- HouseHold_Census %>% 
+  group_by(ID)%>% count(ID)%>% 
+  ungroup()%>% count(n)
+  p$new_count <- p$nn
+  p <- p%>% select(-nn)
+  ggplotly(ggplot(p,aes(x = n, y = new_count, fill = n))+ geom_bar(stat = "identity", position = "dodge") + geom_text(aes(label = paste0(round(new_count / sum(new_count) * 100, 1), "% ")))+  theme_classic() + labs(x = "maximum persons per House Hold", y = "Count", title = "Bar Chart Of maximum persons per House Hold in UK", subtitle = "maximum persons per House Hold Count Visualization") + theme(axis.text.x = element_text(hjust = 0, angle = 90, vjust = 1, size = 10)))
+```
+
+```{r}
+#| label: fig-H8
+#| fig-cap:  " H8 - response to question H8, Are all the rooms in this accommodation ,behind a door that only this household can use?, 1=no, 0=yes."
+#| warning: false 
+HouseHold_Census %>% count(H8) %>%
+  plot_ly(labels = ~H8, values = ~n, type = "pie", textinfo = "label+percent", hole = 0.3) %>%
+  layout( title = "Pie Chart of Answer to Question H8 (Yes/No)", annotations = list(text = "Data Source: House Hold Cencus UK", showarrow = TRUE), legend = list(orientation = "h", x = 0.5, y = -0.1), margin = list(l = 0, r = 0, b = 0, t = 40), colors = c("#1f77b4", "#d62728"),  # You can customize the colors
+    hoverinfo = "label+percent+name",hoverlabel = list(bgcolor = "white", font = list(color = "black")))
+```
+
+#### **MULTIVARIATE ANALYSIS**
+
+The previous section of this write up explained some variables distribution according to the data. in this section we will be able to identify and elucidate some further insight available in the data based on the ethnicity in England and how they interact with other variables like highest Education, Marital Status, Gender distribution etc. as will be expatiated below.
+
+Bar Chart @fig-groupedEth explains the *count* and *percentage* of **Highest Education Qualification** based on the ethnicity. It is obvious that the predominant Highest Education Qualification for all ethnicity is **"Less Than Secondary School"** having a highest values for all. the trend by each ethnicity differs with different order of the values which as shown. For Asian; the value for **"Less Than Secondary"** is very high about 60% with **"Secondary School"** and **"Some HE"** relatively low but other more than 10%, with rest being relatively low less than 11%. For Black; the value for **"Less Than Secondary"** is quiet high about 46% with **"Secondary School"** and **"Some HE"** low but about 40% of the population, with rest being relatively low with sum less than 15%. For Hispanics; the value for **"Less Than Secondary"** and **"Secondary School"** account for about 48% while others more than 50% of the population according to the data. for the Whites, **"Secondary School"** and **"Some HE"** accounts for up to 46% of the population and **"Less Than Secondary"** having 31% and others accounting for less than 25% of the population. while Other Ethnicity; have about 49% **"Less Than Secondary",** 34% **"Secondary School"** and **"Some HE"** while the rest account for 17% of the population. It can be inferred from the data that Hispanic are most educated based on percentage in England with the trend being **Hispanic\> White\> Black\> Others\> Asians**. In @fig-groupedEth_Mar the percentage distribution of Marital Status was displayed on a visual plot with adequate information/ insights got from the plot. for Asian, 35.9% are **Married**, 7.5% were **Separated** or **Divorced** and about 56% for the rest. for Black (27.5% **Married**, 12.5% **Separated** or **Divorced**),Hispanic (47.3% **Married**, 4.0% **Separated** or **Divorced**), White (46.6% **Married**, 9.8% **Separated** or **Divorced**), Other (28.4% **Married**, 8.2% **Separated** or **Divorced**). Based on the data we can infer that in terms of marriage the trends is **Hispanic\> White\> Asians\> Others\> Blacks**. This nuanced analysis offers valuable insights into the complex interplay of ethnicity, education, and marital status in the context of England's diverse population.
+
+```{r}
+#| label: fig-groupedEth
+#| fig-cap:  "Grouped Bar Charts Of House Hold Education in UK for Each Ethnicity"
+#| warning: false 
+ggplotly(HouseHold_Census%>% group_by(Eth)%>% count(Highest.Ed)%>% 
+           pivot_wider(names_from = "Eth", values_from = "n")%>% 
+           mutate(Asians= Asian/sum(Asian),Blacks= Black/sum(Black), Hispanics= Hispanic/sum(Hispanic), Others= Other/sum(Other), Whites= White/sum(White) )%>% select(-c(Asian, Black, Hispanic, Other, White))%>% 
+           pivot_longer(cols=-Highest.Ed ,names_to = 'Ethnicity', values_to = 'Percentages')%>%
+   ggplot(aes(Highest.Ed, Percentages, fill=Highest.Ed))+ geom_col(position = "dodge", show.legend = TRUE)+ geom_text(aes(label = paste0(round(Percentages*100, 1), "% ")))+  theme_classic() + labs(x = "Education Level", y = "Count", title = "Grouped Bar Charts Of House Hold Education in UK for Each Ethnicity", subtitle = "Education level Count Visualization", fill= "Highest.Ed") + theme(axis.text.x = element_text(hjust = 0, angle = 90, vjust = 1, size = 10))+ facet_wrap(~Ethnicity,scales = "free_y"))
+```
+
+```{r}
+#| label: fig-groupedEth_Mar
+#| fig-cap:  "Distribution of Marital Status Levels by Ethnicity"
+#| warning: false 
+ HouseHold_Census%>% group_by(Eth)%>% count(Mar_Stat)%>% 
+  pivot_wider(names_from = "Eth", values_from = "n")%>% 
+  mutate(Asians= Asian/sum(Asian),Blacks= Black/sum(Black), Hispanics= Hispanic/sum(Hispanic), Others= Other/sum(Other), Whites= White/sum(White) )%>% select(-c(Asian, Black, Hispanic, Other, White))%>% 
+  pivot_longer(cols=-Mar_Stat ,names_to = 'Ethnicity', values_to = 'Percentages')%>%
+   ggplot(aes(x = Mar_Stat, fill = Mar_Stat)) +geom_bar(position = "fill") +coord_polar("x") +geom_text(aes(label = paste0(round(Percentages * 100, 1), "% ")), stat = "count", position = position_fill(vjust = 0.5)) +facet_wrap(~Ethnicity) +labs( title = "Distribution of Marital Status Levels by Ethnicity", subtitle = "Marital Status level distribution in each ethnicity", fill = "Marital Status" ) +theme(legend.position = "bottom") + theme(strip.text = element_text(size = 11))
+```
+
+```{r}
+#| label: fig-Eth_Fem
+#| fig-cap:  "Bar Chart Of Gender Distribution of each Ethnicity in UK"
+#| warning: false 
+ggplotly(HouseHold_Census %>% group_by(Eth) %>% count(Female)%>%
+  mutate(Female= ifelse(Female==0, "yes", "no"))%>%
+  ggplot(aes(x=Eth, y= n, fill= Female))+ geom_bar(stat = "identity", position = "dodge", color="blue") + geom_text(aes(label = paste0(round(n / sum(n) * 100, 1), "%", n)))+ theme_classic() + labs(x = "Ethnicity", y = "Count", title = "Bar Chart Of Gender Distribution of each Ethnicity in UK", subtitle = "Gender Distribution Count Visualization") + theme(axis.text.x = element_text(hjust = 0, angle = 90, vjust = 1, size = 10)))
+```
+
+The data reveals a noteworthy pattern in households in England, where a distinct trend is observed across ethnic groups. According to @fig-Eth_Fem, there is a prevalence of **Males** in households identified as Hispanic, Black, and White, while households with Asian and other ethnicities tend to have more **Females**, as indicated by the data. However, the most intriguing insight arises from the analysis of @fig-Eth_H8. It is strikingly evident that all respondents identifying as Asians in England uniformly answered ***"No"*** to [**question H8**]{.underline},which pertains to the exclusivity of rooms, including the kitchen, bathroom, and toilet. In contrast, respondents from other ethnicities unanimously responded ***"Yes"*** to the same question. This divergence in responses prompts a closer examination of the cultural, societal, and structural factors that may influence such decisions. It raises the possibility that cultural norms, distinct living arrangements, or prevalent housing structures within the Asian population could be significant determinants in shaping the responses to question H8. Further exploration into these factors may provide deeper insights into the dynamics of household privacy and accessibility in different ethnic communities within the given context
+
+```{r}
+#| label: fig-Eth_H8
+#| fig-cap:  "Bar Chart Of Answer to Question H8 (Yes/No) of each Ethnicity in UK"
+#| warning: false 
+ ggplotly(HouseHold_Census %>% group_by(Eth) %>% 
+            count(H8)%>% mutate(H8= ifelse(H8==0, "yes", "no"))%>%
+ggplot(aes(x=Eth, y= n, fill= H8))+ geom_bar(stat = "identity", color="lightblue") + geom_text(aes(label = paste0(round(n / sum(n) * 100, 1), "% ")))+ theme_classic() + labs(x = "Ethnicity", y = "Count", title = "Bar Chart Of Answer to Question H8 (Yes/No) of each Ethnicity in UK", subtitle = "H8 Count Visualization by Ethnicity") + theme(axis.text.x = element_text(hjust = 0, angle = 90, vjust = 1, size = 10)))
+```
+
+Looking further into the data to extract valuable information to help define the various Ethnicity in England, their distributions based on some factors and other information. A **scatter plot** showing the distribution of ***Income against Age*** for the Ethnicity was visualized, included in the plot are vertical and horizontal lines corresponding to the *Average Age and Income* respectively also a *Smooth Line* was visualized. The Scatter plot was able to explain *Average Income per Age* for the ethnicity as their financial characteristics and Age distribution can be enumerated with further research, while some other variables like occupation, location etc. may be needed. The characteristics derived from the plot is shown below in @tbl-inc_age . From the table it can be inferred that other Ethnicity are averagely younger while White has high percentage of old persons, the *maximum age* for White, Black, Asians is 93 but 87 for Hispanic and Other Ethnicity. Another valuable inference from @tbl-inc_age is that the highest paid person is Black with about 150000 pounds above the next person, with the mean income defining something different. Though the highest paid Hispanic is earning low the mean income is Second highest after White which has the second highest income while the ethnicity with lowest mean income is Asian. For the *Average Income per Age,* the trend as seen is **Hispanic \> White \> Other \> Black \>Asian**. These derived insights inform the mind the need for further investigation on this project to help buttress and expatiate the hidden information that will explain the trends and observations derived.
+
+```{r}
+#| label: tbl-inc_age
+#| tbl-cap: "Table Representing the Characteristics Derived from Income/Age Scatter Plot"
+#| tbl-cap-location: top
+INC_AGE <- data.frame(Eth=c("Asian", "Black", "Hispanic", "Other", "White"), mean_Age= c(27.17, 33.01,33.50, 26.33, 38.24), mean_INC_Pounds = c(11641.21, 15094.24, 22452.49, 12467.06, 24790.74), Max_Age= c(93, 93,87,87,93), Max_INC= c(431000,720000, 341000, 545000, 572000), Avg_INC_Per_Age= c(428.5, 457.26, 670.22, 473.5, 648.3))
+kable(INC_AGE)
+```
+
+```{r}
+HouseHold_Census<- HouseHold_Census%>% ungroup()%>% 
+  mutate(INC ,str_replace_all(INC, "NULL", "0"))
+HouseHold_Census$INC <- as.numeric(HouseHold_Census$`str_replace_all(INC, "NULL", "0")`)
+mean_incomes <- HouseHold_Census%>% dplyr::select(INC, Eth) %>% group_by(Eth) %>% summarise(mean_INC = mean(INC)) %>% mutate(number = row_number()) %>% arrange(Eth)
+HouseHold_Census<- HouseHold_Census%>% ungroup()%>% mutate(Age ,str_replace_all(Age, "NULL", "0"))
+HouseHold_Census$Age <- as.numeric(HouseHold_Census$`str_replace_all(Age, "NULL", "0")`)
+mean_AGE<- HouseHold_Census%>% dplyr::select(Age, Eth) %>% group_by(Eth) %>% summarise(mean_Age = mean(Age)) %>% mutate(number = row_number()) %>% arrange(Eth)
+
+```
+
+```{r}
+#| label: fig-INC_AGE_ETH
+#| fig-cap:  "Scatter plot with Mean Age Lines for each Ethnicity"
+#| warning: false
+ggplotly(ggplot(HouseHold_Census, aes(x = Age, y = INC, fill = Eth))+geom_point(aes(color = Eth)) +geom_smooth(method = lm, se=FALSE, size= 0.5, aes(x= Age, y=INC, color= Eth ))+geom_vline(data = mean_AGE, aes(xintercept = mean_Age, color = Eth), size = 0.5)+geom_hline(data = mean_incomes, aes(yintercept = mean_INC, color = Eth), size = 0.5) +scale_color_manual(values = c("red", "black", "brown", "purple", "lightblue")) + scale_size_continuous(range = c(2, 10)) + labs(title = "Scatter plot of Income Against Age by Ethnicity With Smooth Lines",x = "Age", y = "Income", fill = "Eth") + theme_classic())
+```
+
+The previous analysis during this project dealt extensively on the distribution of ethnicity based on various factors but the Household. There is a Bar Plot in @fig-MaxPerson that shows the maximum persons per house hold. in the next Exploratory Analysis, there will be a brief understanding of the relationship of the Ethnicity, though due to various constraints in the course work there will be hindrances towards getting the full details on the relationship like checking which ethnicity live together in a Household and what is the occurrence. Other valuable insights can also be explained with adequate variables. In this scope, the occurrence and percentage of only one Ethnicity in a Household will be treated and compared to Ethnicity percentage population in England. @fig-Liv_Al is a pie chart of the percentage distribution of the household count by Ethnicity as shown in @tbl-HSE_CT . It can be deduced here in comparism to the percentage population of the Ethnicity as in @fig-piechart that the White has very high percentage of Ethnicity living alone. For Black it is also high but relatively very low for Asian, Hispanic and Other. This deduction may be due to many factors which includes and not limited to the Number of people per Household which may be low for some and high for others, Financial Status, Social Influence, Beliefs and Norms, Societal Impact etc. Further Study on this will help unravel the reason and cause of the distribution in @fig-Liv_Al .
+
+```{r}
+#| label: fig-Liv_Al
+#| fig-cap:  "Pie Chart of Households with One Ethnicity but more than One person"
+#| warning: false
+one <- HouseHold_Census%>% group_by(ID)%>% count(Eth)%>% mutate(Total = sum(n))%>%
+pivot_wider(names_from = Eth, values_from = n)
+ filtered_data <- one %>% filter(Total == Total)
+ filtered_data1 <- one %>% filter(Total == White)
+ filtered_data2 <- one %>% filter(Total == Black)
+ filtered_data3 <- one %>% filter(Total == Hispanic)
+ filtered_data4 <- one %>% filter(Total == Other)
+ filtered_data5 <- one %>% filter(Total == Asian)
+ One <- data.frame(Total=nrow(filtered_data),White= nrow(filtered_data1),Black=nrow(filtered_data2),Hispanic=nrow(filtered_data3),Other=nrow(filtered_data4),Asian=nrow(filtered_data5))
+ One%>% pivot_longer(cols=-Total ,names_to = 'Ethnicity', values_to = 'HouseHold_count')%>%
+ plot_ly(labels = ~Ethnicity, values = ~HouseHold_count, type = "pie", textinfo = "label+percent", hole = 0.3) %>%
+   layout(title = "Pie Chart of Households with One Ethnicity but more than One person", annotations = list(text = "Data Source: House Hold Cencus UK", showarrow = TRUE), legend = list(orientation = "h", x = 0.5, y = -0.1),
+     margin = list(l = 0, r = 0, b = 0, t = 40), colors = c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"), hoverinfo = "label+percent+name", hoverlabel = list(bgcolor = "lightblue", font = list(color = "red")))
+```
+
+```{r}
+#| label: tbl-HSE_CT
+#| tbl-cap: "Table Representing the Household Count for Ethnicity Living Alone"
+#| tbl-cap-location: top
+Household_count <- One%>%pivot_longer(cols=-Total ,names_to = 'Ethnicity', values_to = 'HouseHold_count')
+kable(Household_count)
+```
+
+#### CONCLUSION AND RECOMMENDATION
+
+Our exploration of the Household Census data has provided a captivating glimpse into the demographic distribution of England, revealing the intricate interplay between ethnicity and various socioeconomic factors. The analysis sheds light on the diverse experiences of England's population, highlighting the significant role of ethnicity in shaping education levels, marital status, income distribution, and household sizes. Understanding these patterns is not merely an academic exercise; it is a crucial step towards developing policies that effectively address the unique needs of England's diverse communities. By carefully considering the demographic realities shaped by ethnicity, policymakers can craft tailored initiatives that promote social cohesion, foster equality, and ensure equitable opportunities for all citizens.
+
+To further deepen our understanding of the complex dynamics between ethnicity and social determinants, further research is essential. This investigation should delve into the underlying causes of observed trends, exploring the interplay between ethnicity, socioeconomic factors, cultural influences, and historical contexts. By unraveling these intricate relationships, policymakers will gain valuable insights to formulate effective strategies that bridge social divides, promote inclusion, and ensure equitable outcomes for all residents of England.
