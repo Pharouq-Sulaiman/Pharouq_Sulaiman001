@@ -1,0 +1,138 @@
+#linear/logistic regression\
+library(tidyverse)
+library(dplyr)
+library(UsingR)
+library(manipulate)
+library(broom)
+library(BSDA)
+library(ggfortify)
+library(caret)
+library(car)
+library(gapminder)
+library(klaR)
+library(randomForest)
+library(xgboost)
+mode <- lm(mpg~ wt, mtcars)
+mode
+summary(mode)
+plot(mode$residuals)
+plot(mode$fitted.values)
+ggplot(mode,aes(x=mode$fitted.values, y=mode$residuals))+
+  geom_point()+ geom_hline(yintercept = 0)
+plot(mtcars$wt,mtcars$mpg)
+ggplot(mtcars,aes(wt,mpg))+geom_point()+geom_smooth(method = lm)
+churning1 <- churning%>%
+  dplyr::select(Churn, MonthlyCharges, tenure)
+
+mode2 <- glm(Churn~., data=churningNew, family=binomial)
+mode2
+summary(mode2)
+
+#;logistic regression
+churning <- read.csv("C:/Users/PC-040/Documents/data_science/Churn_dataset.csv")
+
+churning$SeniorCitizen <- as.character(churning$SeniorCitizen)
+numeric_dataNEw <-churning[, sapply(churning, is.numeric)]
+standardized_dataNEW <- scale(numeric_dataNEw)
+
+# Create a new dataset with standardized numeric variables and non-numeric variables
+churning <- cbind(churning[, sapply(churning, function(churning) !is.numeric(churning))], standardized_dataNEW)
+
+
+gender <- data.frame(gender=churning$gender)
+encoded_gender <- model.matrix(~  gender- 1, data = gender)
+partner <- data.frame(partner=churning$Partner)
+encoded_partner <- model.matrix(~  partner- 1, data = partner)
+
+SeniorCitizen <- data.frame(SeniorCitizen=churning$SeniorCitizen)
+encoded_SeniorCitizen<- model.matrix(~  SeniorCitizen- 1, data = SeniorCitizen)
+Dependents <- data.frame(Dependents=churning$Dependents)
+encoded_Dependents<- model.matrix(~  Dependents- 1, data = Dependents)
+PhoneService <- data.frame(PhoneService=churning$PhoneService)
+encoded_PhoneService<- model.matrix(~  PhoneService- 1, data = PhoneService)
+MultipleLines<- data.frame(MultipleLines=churning$MultipleLines)
+encoded_MultipleLines<- model.matrix(~  MultipleLines- 1, data = MultipleLines)
+InternetService<- data.frame(InternetService=churning$InternetService)
+encoded_InternetService<- model.matrix(~  InternetService- 1, data =InternetService)
+OnlineSecurity<- data.frame(OnlineSecurity=churning$OnlineSecurity)
+encoded_OnlineSecurity<- model.matrix(~  OnlineSecurity- 1, data =OnlineSecurity)
+OnlineBackup<- data.frame(OnlineBackup=churning$OnlineBackup)
+encoded_OnlineBackup<- model.matrix(~  OnlineBackup- 1, data =OnlineBackup)
+
+encode<- function(churning, column_name) {
+  column <- data.frame(value = churning[[column_name]])
+  encoded_column <- model.matrix(~ factor(value) - 1, data = column)
+  colnames(encoded_column) <- gsub("factor\\(value\\)", column_name, colnames(encoded_column))
+  return(encoded_column)
+}
+encoded_DeviceProtection <- encode(churning, "DeviceProtection")
+encoded_TechSupport <- encode(churning, "TechSupport")
+encoded_StreamingTV <- encode(churning, "StreamingTV")
+encoded_StreamingMovies <- encode(churning, "StreamingMovies")
+encoded_Contract <- encode(churning, "Contract")
+encoded_PaperlessBilling <- encode(churning, "PaperlessBilling")
+encoded_PaymentMethod <- encode(churning, "PaymentMethod")
+churningNew <- cbind(churning, encoded_gender, encoded_partner, encoded_SeniorCitizen,encoded_Dependents, encoded_PhoneService, encoded_MultipleLines, encoded_InternetService, encoded_OnlineSecurity,
+                     encoded_OnlineBackup, encoded_DeviceProtection, encoded_TechSupport, encoded_StreamingTV, encoded_StreamingMovies, encoded_Contract, encoded_PaperlessBilling,
+                     encoded_PaymentMethod)
+rownames(churningNew) <- churningNew$customerID
+churningNew <- churningNew%>%
+  dplyr::select(-c(gender, customerID,Partner,SeniorCitizen,Dependents,PhoneService,MultipleLines,InternetService,OnlineSecurity,OnlineBackup,DeviceProtection,TechSupport,StreamingTV,
+                   StreamingMovies, Contract,PaperlessBilling,PaymentMethod))
+
+
+churningNew <- churningNew%>%
+  dplyr::select(-c(genderMale,partnerYes, SeniorCitizen1,DependentsYes,PhoneServiceYes,MultipleLinesNo,`MultipleLinesNo phone service`, InternetServiceNo, OnlineSecurityNo, `OnlineSecurityNo internet service`,
+                   OnlineBackupNo, `OnlineBackupNo internet service`, DeviceProtectionNo, `DeviceProtectionNo internet service`,TechSupportNo, `TechSupportNo internet service`, StreamingTVNo,
+                   `StreamingTVNo internet service`, StreamingMoviesNo, `StreamingMoviesNo internet service`, PaperlessBillingNo))
+table(is.na(churningNew))
+
+churningNew$Churn <- ifelse(churningNew$Churn=="No",1,0)
+churningNew <- churningNew%>%
+  drop_na()
+churningNew$Churn <- as.numeric(churningNew$Churn)
+lmchurn <- lm(Churn~., churningNew)
+summary(lmchurn)
+lmchurn$fitted.values
+logregchurn <- glm(Churn~., churningNew, family = binomial)
+summary(logregchurn)
+plot(churning1$tenure, logregchurn$fitted.values)
+vif(logregchurn)
+
+min(logregchurn$fitted)
+max(logregchurn$fitted)
+mean(logregchurn$fitted)
+
+logregchurn$fit <- ifelse(logregchurn$fitted.values >= 0.5175,1,0)
+churning2 <- data.frame(churningNew$Churn, logregchurn$fitted.values)
+churning3 <- churning2[grepl(1, churningNew$Churn),]
+mean(churning3$logregchurn.fitted.values)
+logregchurn$fit <- as.factor(logregchurn$fit)
+churningNew$Churn <- as.factor(churningNew$Churn)
+confusionMatrix(logregchurn$fit, churningNew$Churn)
+plot(logregchurn$residuals)
+plot(logregchurn$fitted.values)
+
+intrain24<- createDataPartition(y= churningNew$Churn, p=0.75, list = FALSE )
+intrain24
+churningNew
+unique(churningNew)
+glimpse(churningNew)
+training <-churningNew[intrain24,]
+testing <- churningNew[-intrain24,]
+testing$Churn <- as.factor(testing$churn)
+training$Churn<- factor(training$churn)
+mode24 <- glm(Churn~., data = training, family = binomial)
+prediction<- predict(mode24,newdata=testing, type = "response")
+predictions1 <- ifelse(prediction >= 0.50,1,0)
+predictions1 <- as.factor(predictions1)
+confusionMatrix(predictions1,testing$Churn)
+plot(mode24$residuals)
+
+summary(churningNew)
+
+
+#### crossvalidation using repeated kfold
+set.seed(123)
+train.churn_control <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
+model_churn <- train(Churn~., training, method= "xgbTree", trControl= train.churn_control)
