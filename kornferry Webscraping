@@ -1,0 +1,145 @@
+library(RSelenium)
+library(wdman)
+library(netstat)
+library(rvest)
+library(magrittr)
+library(stringr)
+library(ralger)
+library(pdftools)
+library(tidyverse)
+library(data.table)
+library(stringdist)
+library(fuzzyjoin)
+
+chrome_driver <- chrome(version = "137.0.7151.68", port = free_port())
+
+###"C:\Users\hp\AppData\Local\binman\binman_chromedriver\win32\137.0.7151.68\chromedriver.exe"
+###use with command prompt
+
+# Define Chrome options WITHOUT headless mode
+chrome_options <- list(
+  "goog:chromeOptions" = list(
+    args = c("--disable-gpu", "--window-size=1280,800")  # No headless flag
+  )
+)
+
+# Connect to ChromeDriver
+remDr <- remoteDriver(
+  remoteServerAddr = "localhost",
+  port = free_port(),
+  browserName = "chrome",
+  extraCapabilities = chrome_options
+)
+
+# Open browserdata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAUCAYAAACnOeyiAAAAXklEQVR4XmNgAIL///8zMYSGhjIDGYIMIiIMvECGMwMDN4M4kFEDUqIIZKwDMdSBjAsghj6Q8QPEMAAy/lOBoQekv4AYKkDGfgZeXl4RICOLQUtLiw3IUAJJMQIZ7AC2tU2tJWCy/wAAAABJRU5ErkJggg==
+remDr$open()
+
+remDr$navigate("https://kornferry.tal.net/vx/lang-en-GB/mobile-0/appcentre-ext/brand-4/xf-9ddf4301e915/candidate/jobboard/vacancy/3/adv/")
+
+Sys.sleep(5)
+
+remDr$maxWindowSize()
+
+remDr$findElement(using = "xpath", "//*[@id='cookies-accept-button']")$clickElement()
+
+
+
+Korn_jobs <- list()
+index <- 1
+
+repeat {
+
+Job_tag <- remDr$findElements(using = "xpath", "//*[@id='results_list']/div/table/tbody/tr/td/a")
+
+click_tag<- remDr$findElements(using = "xpath", "//*[@id='results_list']/div/table/tbody/tr/td//a")
+
+Country_tag <- remDr$findElements(using = "xpath", "//*[@id='results_list']/div/table/tbody/tr/td[2]")
+
+for (i in seq_along(Job_tag)) {
+  
+  Job <- country <- job_type <- state <- city <- Job_description <- role <-NA 
+    responsibilities <- work_setting <- Skills_and_Experience <- Application <- logo <- NA
+    
+  try ({ Job <- Job_tag[[i]]$getElementText()%>%unlist()}, silent = T)
+  
+  try ({country<- Country_tag[[i]]$getElementText()%>%unlist()}, silent = T)
+  
+  Sys.sleep(3)
+  
+   Job_tag[[i]]$clickElement()
+ 
+   
+  Sys.sleep(5)
+  
+  
+  job_type_tag <- tryCatch(remDr$findElement(using = "xpath", "//div[contains(@id, '_field_value_156230_1')]"), error = function(e) NULL)
+  job_type <- if (!is.null(job_type_tag)) tryCatch(job_type_tag$getElementText()[[1]], error = function(e) NA) else NA
+  
+  state_tag <- tryCatch(remDr$findElement(using = "xpath", "//div[contains(@id, '_field_value_151369_1')]"), error = function(e) NULL)
+  state <- if (!is.null(state_tag)) tryCatch(state_tag$getElementText()[[1]], error = function(e) NA) else NA
+  
+  city_tag <- tryCatch(remDr$findElement(using = "xpath", "//div[contains(@id, '_field_value_151365_1')]"), error = function(e) NULL)
+  city <- if (!is.null(city_tag)) tryCatch(city_tag$getElementText()[[1]], error = function(e) NA) else NA
+  
+  Job_description_tag <- tryCatch(remDr$findElement(using = "xpath", "//div[contains(@id, '_field_value_81251_1')]"), error = function(e) NULL)
+  Job_description <- if (!is.null(Job_description_tag)) tryCatch(Job_description_tag$getElementText()[[1]], error = function(e) NA) else NA
+  
+  Application_tag <- tryCatch(remDr$findElement(using = "xpath", "//*[@id='vac_desc']/div/form"), error = function(e) NULL)
+  Application <- if (!is.null(Application_tag)) tryCatch(Application_tag$getElementAttribute('action')[[1]], error = function(e) NA) else NA
+  
+  logo_tag <- tryCatch(remDr$findElement(using = "xpath", "//*[@id='branding-header']/div/div/a/img"), error = function(e) NULL)
+  logo <- if (!is.null(logo_tag)) tryCatch(logo_tag$getElementAttribute('src')[[1]], error = function(e) NA) else NA
+  
+  
+  Korn_jobs[[index]] <- tibble::tibble(
+    Job = Job,
+    country= country,
+    job_type= job_type,
+    state= state,
+    city= city,
+    Job_description= Job_description,
+    Application= Application,
+    logo=logo,
+    scrape_time= Sys.Date()
+    
+  )
+  index <- index + 1
+  
+  remDr$goBack()
+  
+  Sys.sleep(7)
+  
+  Job_tag <- remDr$findElements(using = "xpath", "//*[@id='results_list']/div/table/tbody/tr/td/a")
+  
+  click_tag<- remDr$findElements(using = "xpath", "//*[@id='results_list']/div/table/tbody/tr/td//a")
+  
+  Country_tag <- remDr$findElements(using = "xpath", "//*[@id='results_list']/div/table/tbody/tr/td[2]")
+  
+  
+}
+
+next_btn <- tryCatch({
+  btn <- remDr$findElement(using = "xpath", "//*[@id='advanced_search_rc']/div[2]/div[4]/span[@class='next_links']/a")
+  class_attr <- btn$getElementAttribute("class")[[1]]
+  if (grepl("disabled", class_attr)) NULL else btn
+}, error = function(e) NULL)
+
+if (is.null(next_btn)) break
+
+try(next_btn$clickElement(), silent = TRUE)
+Sys.sleep(5)  # allow time for month change
+
+}
+
+Korn_jobs_df <- bind_rows(Korn_jobs)
+Korn_jobs_df <- Korn_jobs_df%>%
+  select(-c(role, responsibilities, work_setting, Skills_and_Experience))
+
+
+Korn_jobs_df$Job_description <- Korn_jobs_df$Job_description%>%unlist()
+
+we <- Korn_jobs_df[1,6]
+
+cat(we%>%unlist())
+
+write.csv(file2, paste0("new_rev", Sys.Date(), ".csv"), row.names = FALSE)
